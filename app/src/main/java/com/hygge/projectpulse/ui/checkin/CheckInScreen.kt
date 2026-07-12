@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
@@ -67,6 +68,7 @@ fun CheckInScreen(viewModel: CheckInViewModel = hiltViewModel()) {
     val note by viewModel.note.collectAsState()
     val history by viewModel.workoutHistory.collectAsState()
     val typeOptions = viewModel.typeOptions
+    var showDeleteAllDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -76,61 +78,101 @@ fun CheckInScreen(viewModel: CheckInViewModel = hiltViewModel()) {
             )
         }
     ) { padding ->
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                end = 16.dp,
-                top = 8.dp,
-                bottom = bottomBarHeight
-            ),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .padding(padding)
         ) {
-            item {
-                TimerCard(
-                    activeWorkout = activeWorkout,
-                    elapsed = elapsed,
-                    selectedType = selectedType,
-                    typeOptions = typeOptions,
-                    note = note,
-                    onTypeChange = viewModel::setType,
-                    onNoteChange = viewModel::setNote,
-                    onStart = viewModel::startWorkout,
-                    onStop = viewModel::stopWorkout
-                )
-            }
+            TimerCard(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                activeWorkout = activeWorkout,
+                elapsed = elapsed,
+                selectedType = selectedType,
+                typeOptions = typeOptions,
+                note = note,
+                onTypeChange = viewModel::setType,
+                onNoteChange = viewModel::setNote,
+                onStart = viewModel::startWorkout,
+                onStop = viewModel::stopWorkout
+            )
 
-            item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, top = 8.dp, end = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = stringResource(R.string.workout_history),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.padding(top = 8.dp)
+                    fontWeight = FontWeight.SemiBold
                 )
-            }
-
-            if (history.isEmpty()) {
-                item {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
+                if (history.isNotEmpty()) {
+                    TextButton(onClick = { showDeleteAllDialog = true }) {
                         Text(
-                            stringResource(R.string.no_workouts_yet),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = stringResource(R.string.delete_all_workouts),
+                            color = MaterialTheme.colorScheme.error
                         )
                     }
                 }
-            } else {
-                items(history, key = { it.id }) { workout ->
-                    WorkoutItem(
-                        workout = workout,
-                        onDelete = { viewModel.deleteWorkout(workout) }
-                    )
+            }
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 16.dp),
+                contentPadding = PaddingValues(bottom = bottomBarHeight),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                if (history.isEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                stringResource(R.string.no_workouts_yet),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else {
+                    items(history, key = { it.id }) { workout ->
+                        WorkoutItem(
+                            workout = workout,
+                            onDelete = { viewModel.deleteWorkout(workout) }
+                        )
+                    }
                 }
             }
+        }
+
+        if (showDeleteAllDialog) {
+            AlertDialog(
+                onDismissRequest = { showDeleteAllDialog = false },
+                title = { Text(stringResource(R.string.delete_all_workouts)) },
+                text = { Text(stringResource(R.string.delete_all_workouts_confirm)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            viewModel.deleteAllWorkouts()
+                            showDeleteAllDialog = false
+                        }
+                    ) {
+                        Text(
+                            text = stringResource(R.string.delete),
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDeleteAllDialog = false }) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                }
+            )
         }
     }
 }
@@ -145,10 +187,11 @@ private fun TimerCard(
     onTypeChange: (String) -> Unit,
     onNoteChange: (String) -> Unit,
     onStart: () -> Unit,
-    onStop: () -> Unit
+    onStop: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     GlassCard(
-        modifier = Modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally

@@ -40,6 +40,8 @@ class WorkoutRepository @Inject constructor(
 
     suspend fun deleteWorkout(workout: WorkoutEntity) = workoutDao.delete(workout)
 
+    suspend fun deleteAll() = workoutDao.deleteAll()
+
     suspend fun getById(id: Long): WorkoutEntity? = workoutDao.getById(id)
 
     suspend fun countBetween(from: Long, to: Long): Int = workoutDao.countBetween(from, to)
