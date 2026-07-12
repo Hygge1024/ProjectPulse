@@ -79,7 +79,7 @@ fun ExerciseDetailSheet(
                         path = exercise.gifPath,
                         contentDescription = title,
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Inside,
+                        contentScale = ContentScale.Crop,
                         alignment = Alignment.Center
                     )
                 }
