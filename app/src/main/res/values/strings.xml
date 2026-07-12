@@ -49,6 +49,10 @@
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
     <string name="choose_date">Choose date</string>
+    <string name="close">Close</string>
+    <string name="open_github">Open GitHub</string>
+    <string name="disclaimer_title">Disclaimer</string>
+    <string name="disclaimer_content">This app is based on the open-source project exercises-dataset, organizing the exercise data into a convenient reference for personal learning. If any content infringes, please contact the developer.\n\nThis project is completely open-source and non-commercial.\nSource code: https://github.com/Hygge1024/ProjectPulse</string>
 
     <string-array name="workout_types">
         <item>@string/shoulders</item>

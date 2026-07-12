@@ -16,6 +16,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -46,7 +50,7 @@ import java.util.concurrent.TimeUnit
 
 private val bottomBarHeight = 80.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(viewModel: StatsViewModel = hiltViewModel()) {
     val stats by viewModel.stats.collectAsState()
@@ -62,53 +66,75 @@ fun StatsScreen(viewModel: StatsViewModel = hiltViewModel()) {
             )
         }
     ) { padding ->
+        val isRefreshing by viewModel.isRefreshing.collectAsState()
+        val pullRefreshState = rememberPullRefreshState(
+            refreshing = isRefreshing,
+            onRefresh = { viewModel.refresh() }
+        )
+
+        LaunchedEffect(Unit) {
+            viewModel.refresh()
+        }
+
         LaunchedEffect(exportMessage) {
             exportMessage?.let { viewModel.clearExportMessage() }
         }
-        LazyColumn(
+
+        Box(
             modifier = Modifier
+                .padding(padding)
                 .fillMaxSize()
-                .padding(padding),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                end = 16.dp,
-                top = 8.dp,
-                bottom = bottomBarHeight
-            ),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .pullRefresh(pullRefreshState)
         ) {
-            item {
-                PeriodSelector(period) { viewModel.setPeriod(it) }
-            }
-
-            item {
-                StatsCards(stats)
-            }
-
-            item {
-                TypeDistributionCard(stats.byType)
-            }
-
-            item {
-                ExportCard(
-                    start = range.first,
-                    end = range.second,
-                    onExport = { start, end ->
-                        viewModel.exportRange(start, end)
-                    }
-                )
-            }
-
-            exportMessage?.let { msg ->
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 8.dp,
+                    bottom = bottomBarHeight
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 item {
-                    Text(
-                        text = msg,
-                        modifier = Modifier.padding(8.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 14.sp
+                    PeriodSelector(period) { viewModel.setPeriod(it) }
+                }
+
+                item {
+                    StatsCards(stats)
+                }
+
+                item {
+                    TypeDistributionCard(stats.byType)
+                }
+
+                item {
+                    ExportCard(
+                        start = range.first,
+                        end = range.second,
+                        onExport = { start, end ->
+                            viewModel.exportRange(start, end)
+                        }
                     )
                 }
+
+                exportMessage?.let { msg ->
+                    item {
+                        Text(
+                            text = msg,
+                            modifier = Modifier.padding(8.dp),
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 14.sp
+                        )
+                    }
+                }
             }
+
+            PullRefreshIndicator(
+                refreshing = isRefreshing,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter)
+            )
         }
     }
 }

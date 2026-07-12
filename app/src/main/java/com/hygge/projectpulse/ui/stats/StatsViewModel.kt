@@ -13,6 +13,7 @@ import java.io.File
 import java.util.Calendar
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -42,6 +43,9 @@ class StatsViewModel @Inject constructor(
     val stats: StateFlow<StatsData> = combine(workouts, _period) { list, _ ->
         calculateStats(list)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), StatsData())
+
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
     val exportMessage = MutableStateFlow<String?>(null)
 
@@ -109,6 +113,15 @@ class StatsViewModel @Inject constructor(
 
     fun clearExportMessage() {
         exportMessage.value = null
+    }
+
+    fun refresh() {
+        _isRefreshing.value = true
+        setPeriod(_period.value)
+        viewModelScope.launch {
+            delay(500)
+            _isRefreshing.value = false
+        }
     }
 }
 
