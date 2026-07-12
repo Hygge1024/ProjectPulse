@@ -43,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.activity.compose.BackHandler
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hygge.projectpulse.R
 import com.hygge.projectpulse.data.local.entity.ExerciseEntity
@@ -98,6 +99,10 @@ fun ExercisesScreen(viewModel: ExercisesViewModel = hiltViewModel()) {
             )
         }
     ) { padding ->
+        BackHandler(enabled = selectedCategory != null && selectedExercise == null) {
+            viewModel.selectCategory(null)
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -176,35 +181,36 @@ private fun CategoryGrid(
             GlassCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
+                    .height(220.dp)
                     .clickable { onCategoryClick(category) }
             ) {
-                Box(modifier = Modifier.fillMaxSize()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.Start
+                ) {
                     if (category.imagePath.isNotBlank()) {
                         ExerciseImage(
                             path = category.imagePath,
                             contentDescription = category.nameEn,
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp),
                             contentScale = androidx.compose.ui.layout.ContentScale.Crop
                         )
                     }
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(12.dp)
-                    ) {
-                        Text(
-                            text = category.nameZh,
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 18.sp,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Text(
-                            text = "${category.count} ${stringResource(R.string.exercises)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = category.nameZh,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 18.sp,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "${category.count} ${stringResource(R.string.exercises)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
