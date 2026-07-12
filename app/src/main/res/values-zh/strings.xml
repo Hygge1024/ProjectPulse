@@ -22,6 +22,7 @@
 
     <string name="exercises_categories">分类</string>
     <string name="exercises_search">搜索动作</string>
+    <string name="exercises">个动作</string>
     <string name="exercise_instructions">动作说明</string>
     <string name="exercise_note">个人便签</string>
 

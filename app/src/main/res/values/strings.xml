@@ -22,6 +22,7 @@
 
     <string name="exercises_categories">Categories</string>
     <string name="exercises_search">Search exercises</string>
+    <string name="exercises">exercises</string>
     <string name="exercise_instructions">Instructions</string>
     <string name="exercise_note">Personal notes</string>
 

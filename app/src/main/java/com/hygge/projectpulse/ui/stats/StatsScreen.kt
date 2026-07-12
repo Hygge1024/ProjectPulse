@@ -16,8 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -41,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hygge.projectpulse.R
+import com.hygge.projectpulse.ui.components.GlassCard
 import java.io.File
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
@@ -152,16 +151,10 @@ private fun StatsCards(stats: StatsData) {
 
 @Composable
 private fun StatCard(value: String, label: String, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    GlassCard(
+        modifier = modifier
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -181,15 +174,10 @@ private fun StatCard(value: String, label: String, modifier: Modifier = Modifier
 
 @Composable
 private fun TypeDistributionCard(byType: Map<String, Int>) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    GlassCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column {
             Text(
                 text = "Type Distribution",
                 fontWeight = FontWeight.SemiBold,
@@ -222,15 +210,10 @@ private fun ExportCard(start: Long, end: Long, onExport: (Long, Long) -> Unit) {
     var selectedStart by remember { mutableStateOf(start) }
     var selectedEnd by remember { mutableStateOf(end) }
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+    GlassCard(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column {
             Text(
                 text = stringResource(R.string.stats_export),
                 fontWeight = FontWeight.SemiBold,

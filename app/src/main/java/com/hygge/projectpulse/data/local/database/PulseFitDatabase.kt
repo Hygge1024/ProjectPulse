@@ -9,7 +9,7 @@ import com.hygge.projectpulse.data.local.entity.WorkoutEntity
 
 @Database(
     entities = [WorkoutEntity::class, ExerciseEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class PulseFitDatabase : RoomDatabase() {

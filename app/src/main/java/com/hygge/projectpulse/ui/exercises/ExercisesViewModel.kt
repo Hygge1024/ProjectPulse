@@ -12,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -32,6 +33,9 @@ class ExercisesViewModel @Inject constructor(
     private val _selectedCategory = MutableStateFlow<String?>(null)
     val selectedCategory: StateFlow<String?> = _selectedCategory
 
+    private val _selectedExerciseId = MutableStateFlow<Long?>(null)
+    val selectedExerciseId: StateFlow<Long?> = _selectedExerciseId
+
     val categories = flow {
         emit(exerciseRepository.getCategories())
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -46,11 +50,17 @@ class ExercisesViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val selectedExercise: StateFlow<ExerciseEntity?> = combine(exercises, _selectedExerciseId) { list, id ->
+        id?.let { list.find { it.id == id } }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
     val importProgress = MutableStateFlow("")
 
     init {
         viewModelScope.launch {
-            if (!userPreferences.exercisesImported.first()) {
+            val count = exerciseRepository.count()
+            val missingMedia = exerciseRepository.countWithEmptyImagePath()
+            if (count == 0 || missingMedia > 0 || !userPreferences.exercisesImported.first()) {
                 importExercises()
             }
         }
@@ -74,6 +84,10 @@ class ExercisesViewModel @Inject constructor(
 
     fun selectCategory(category: String?) {
         _selectedCategory.value = category
+    }
+
+    fun selectExercise(id: Long?) {
+        _selectedExerciseId.value = id
     }
 
     fun updateNote(id: Long, note: String) {
