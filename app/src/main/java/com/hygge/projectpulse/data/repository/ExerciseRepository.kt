@@ -31,4 +31,6 @@ class ExerciseRepository @Inject constructor(
     suspend fun count(): Int = exerciseDao.count()
 
     suspend fun countWithEmptyImagePath(): Int = exerciseDao.countWithEmptyImagePath()
+
+    suspend fun countWithEmptyNameZh(): Int = exerciseDao.countWithEmptyNameZh()
 }

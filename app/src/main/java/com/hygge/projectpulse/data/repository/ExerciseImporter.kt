@@ -17,12 +17,14 @@ class ExerciseImporter @Inject constructor(
 
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun import(): List<ExerciseEntity> {
+        val nameZhMap = loadNameZhMap()
         context.assets.open("exercises.json").use { input ->
             val list: List<ExerciseJson> = json.decodeFromStream(input)
             return list.map { item ->
                 ExerciseEntity(
                     externalId = item.id,
                     nameEn = item.name,
+                    nameZh = nameZhMap[item.id] ?: "",
                     category = item.category,
                     bodyPart = item.bodyPart,
                     target = item.target,
@@ -36,6 +38,17 @@ class ExerciseImporter @Inject constructor(
                     gifPath = item.gifUrl.ifBlank { "videos/${item.id}-${item.mediaId}.gif" }
                 )
             }
+        }
+    }
+
+    private fun loadNameZhMap(): Map<String, String> {
+        return try {
+            context.assets.open("exercise_names_zh.json").use { input ->
+                val text = input.bufferedReader(Charset.forName("UTF-8")).readText()
+                json.decodeFromString<Map<String, String>>(text)
+            }
+        } catch (e: Exception) {
+            emptyMap()
         }
     }
 }

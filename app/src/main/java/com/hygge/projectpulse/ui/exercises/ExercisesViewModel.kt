@@ -60,7 +60,8 @@ class ExercisesViewModel @Inject constructor(
         viewModelScope.launch {
             val count = exerciseRepository.count()
             val missingMedia = exerciseRepository.countWithEmptyImagePath()
-            if (count == 0 || missingMedia > 0 || !userPreferences.exercisesImported.first()) {
+            val missingNames = exerciseRepository.countWithEmptyNameZh()
+            if (count == 0 || missingMedia > 0 || missingNames > 0 || !userPreferences.exercisesImported.first()) {
                 importExercises()
             }
         }
@@ -69,7 +70,17 @@ class ExercisesViewModel @Inject constructor(
     private suspend fun importExercises() {
         importProgress.value = "Importing..."
         try {
-            val exercises = exerciseImporter.import()
+            val existing = exerciseRepository.getAllExercises().first().associateBy { it.externalId }
+            val imported = exerciseImporter.import()
+            val exercises = imported.map { item ->
+                existing[item.externalId]?.let {
+                    item.copy(
+                        id = it.id,
+                        userNote = it.userNote,
+                        isFavorite = it.isFavorite
+                    )
+                } ?: item
+            }
             exerciseRepository.insertAll(exercises)
             userPreferences.setExercisesImported(true)
             importProgress.value = "Imported ${exercises.size} exercises"

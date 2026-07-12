@@ -3,6 +3,7 @@ package com.hygge.projectpulse.ui
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,6 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -75,19 +78,28 @@ fun PulseFitApp() {
             composable(Screen.Settings.route) { SettingsScreen() }
         }
 
-        val bottomBarTint = HazeDefaults.tint(Color.White.copy(alpha = 0.3f))
+        val bottomBarTint = HazeDefaults.tint(Color.White.copy(alpha = 0.35f))
         NavigationBar(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
+                .height(80.dp)
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                .drawBehind {
+                    drawLine(
+                        color = Color.White.copy(alpha = 0.3f),
+                        start = Offset(0f, 0f),
+                        end = Offset(size.width, 0f),
+                        strokeWidth = 1.dp.toPx()
+                    )
+                }
                 .hazeChild(
                     state = hazeState,
                     shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
                     style = HazeDefaults.style(
-                        backgroundColor = Color.White.copy(alpha = 0.15f),
+                        backgroundColor = Color.White.copy(alpha = 0.28f),
                         tint = bottomBarTint,
-                        blurRadius = 20.dp,
+                        blurRadius = 24.dp,
                         noiseFactor = 0.1f
                     )
                 ),

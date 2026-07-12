@@ -49,6 +49,8 @@ import com.hygge.projectpulse.data.local.entity.ExerciseEntity
 import com.hygge.projectpulse.ui.components.ExerciseImage
 import com.hygge.projectpulse.ui.components.GlassCard
 
+private val bottomBarHeight = 80.dp
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExercisesScreen(viewModel: ExercisesViewModel = hiltViewModel()) {
@@ -130,12 +132,14 @@ fun ExercisesScreen(viewModel: ExercisesViewModel = hiltViewModel()) {
             if (selectedCategory == null && searchQuery.isBlank()) {
                 CategoryGrid(
                     categories = categoryItems,
-                    onCategoryClick = { viewModel.selectCategory(it.id) }
+                    onCategoryClick = { viewModel.selectCategory(it.id) },
+                    modifier = Modifier.fillMaxSize()
                 )
             } else {
                 ExerciseList(
                     exercises = exercises,
-                    onExerciseClick = { viewModel.selectExercise(it.id) }
+                    onExerciseClick = { viewModel.selectExercise(it.id) },
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
@@ -153,11 +157,18 @@ fun ExercisesScreen(viewModel: ExercisesViewModel = hiltViewModel()) {
 @Composable
 private fun CategoryGrid(
     categories: List<CategoryItem>,
-    onCategoryClick: (CategoryItem) -> Unit
+    onCategoryClick: (CategoryItem) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        modifier = modifier,
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 8.dp,
+            bottom = bottomBarHeight
+        ),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -203,11 +214,17 @@ private fun CategoryGrid(
 @Composable
 private fun ExerciseList(
     exercises: List<ExerciseEntity>,
-    onExerciseClick: (ExerciseEntity) -> Unit
+    onExerciseClick: (ExerciseEntity) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        modifier = modifier,
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 8.dp,
+            bottom = bottomBarHeight
+        ),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         items(exercises, key = { it.id }) { exercise ->
@@ -241,14 +258,14 @@ private fun ExerciseRow(
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = exercise.nameEn,
+                    text = exercise.nameZh?.takeIf { it.isNotBlank() } ?: exercise.nameEn,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "${categoryNameZh(exercise.category)} · ${exercise.target} · ${exercise.equipment}",
+                    text = "${categoryNameZh(exercise.category)} · ${targetNameZh(exercise.target)} · ${equipmentNameZh(exercise.equipment)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

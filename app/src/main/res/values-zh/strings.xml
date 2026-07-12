@@ -13,6 +13,7 @@
     <string name="workout_history">历史记录</string>
     <string name="no_workouts_yet">暂无记录</string>
     <string name="duration">时长</string>
+    <string name="times">次数</string>
 
     <string name="stats_weekly">本周</string>
     <string name="stats_monthly">本月</string>
@@ -39,4 +40,13 @@
     <string name="running">跑步</string>
     <string name="yoga">瑜伽</string>
     <string name="other">其他</string>
+
+    <string name="choose">选择</string>
+    <string name="save">保存</string>
+    <string name="export_all_workouts">导出全部记录</string>
+    <string name="type_distribution">类型分布</string>
+    <string name="no_data">暂无数据</string>
+    <string name="cancel">取消</string>
+    <string name="confirm">确定</string>
+    <string name="choose_date">选择日期</string>
 </resources>

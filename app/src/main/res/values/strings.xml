@@ -13,6 +13,7 @@
     <string name="workout_history">History</string>
     <string name="no_workouts_yet">No workouts yet</string>
     <string name="duration">Duration</string>
+    <string name="times">Times</string>
 
     <string name="stats_weekly">Weekly</string>
     <string name="stats_monthly">Monthly</string>
@@ -39,4 +40,25 @@
     <string name="running">Running</string>
     <string name="yoga">Yoga</string>
     <string name="other">Other</string>
+
+    <string name="choose">Choose</string>
+    <string name="save">Save</string>
+    <string name="export_all_workouts">Export all workouts</string>
+    <string name="type_distribution">Type Distribution</string>
+    <string name="no_data">No data</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
+    <string name="choose_date">Choose date</string>
+
+    <string-array name="workout_types">
+        <item>@string/shoulders</item>
+        <item>@string/back</item>
+        <item>@string/chest</item>
+        <item>@string/legs</item>
+        <item>@string/arms</item>
+        <item>@string/cycling</item>
+        <item>@string/running</item>
+        <item>@string/yoga</item>
+        <item>@string/other</item>
+    </string-array>
 </resources>
