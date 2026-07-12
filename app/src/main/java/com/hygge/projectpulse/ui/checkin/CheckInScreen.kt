@@ -82,9 +82,13 @@ fun CheckInScreen(viewModel: CheckInViewModel = hiltViewModel()) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             TimerCard(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
                 activeWorkout = activeWorkout,
                 elapsed = elapsed,
                 selectedType = selectedType,
@@ -96,36 +100,35 @@ fun CheckInScreen(viewModel: CheckInViewModel = hiltViewModel()) {
                 onStop = viewModel::stopWorkout
             )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, top = 8.dp, end = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.workout_history),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-                if (history.isNotEmpty()) {
-                    TextButton(onClick = { showDeleteAllDialog = true }) {
-                        Text(
-                            text = stringResource(R.string.delete_all_workouts),
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-            }
-
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
-                    .padding(horizontal = 16.dp),
+                    .weight(1f),
                 contentPadding = PaddingValues(bottom = bottomBarHeight),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.workout_history),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        if (history.isNotEmpty()) {
+                            TextButton(onClick = { showDeleteAllDialog = true }) {
+                                Text(
+                                    text = stringResource(R.string.delete_all_workouts),
+                                    color = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    }
+                }
+
                 if (history.isEmpty()) {
                     item {
                         Box(
@@ -191,19 +194,19 @@ private fun TimerCard(
     modifier: Modifier = Modifier
 ) {
     GlassCard(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxSize()
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
                 text = formatDuration(elapsed),
-                fontSize = 56.sp,
+                fontSize = 48.sp,
                 fontWeight = FontWeight.Light,
                 color = MaterialTheme.colorScheme.onBackground
             )
-
-            Spacer(modifier = Modifier.height(16.dp))
 
             TypeDropdown(
                 selected = selectedType,
@@ -211,13 +214,13 @@ private fun TimerCard(
                 onSelected = onTypeChange
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
             OutlinedTextField(
                 value = note,
                 onValueChange = onNoteChange,
                 label = { Text(stringResource(R.string.workout_note)) },
                 modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                maxLines = 1,
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
@@ -226,19 +229,17 @@ private fun TimerCard(
                 )
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             val isRunning = activeWorkout != null
             val buttonColor = if (isRunning) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
             Button(
                 onClick = if (isRunning) onStop else onStart,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
+                contentPadding = PaddingValues(vertical = 8.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
             ) {
                 Text(
-                    text = if (isRunning) stringResource(R.string.stop_workout) else stringResource(R.string.start_workout),
-                    modifier = Modifier.padding(vertical = 4.dp)
+                    text = if (isRunning) stringResource(R.string.stop_workout) else stringResource(R.string.start_workout)
                 )
             }
         }
@@ -261,6 +262,8 @@ private fun TypeDropdown(
             value = selected,
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
+            maxLines = 1,
             label = { Text(stringResource(R.string.workout_type)) },
             modifier = Modifier
                 .fillMaxWidth()
