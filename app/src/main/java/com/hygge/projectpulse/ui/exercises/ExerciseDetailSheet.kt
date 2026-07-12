@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -70,7 +71,8 @@ fun ExerciseDetailSheet(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(240.dp),
+                        .aspectRatio(1f)
+                        .padding(vertical = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     ExerciseImage(
@@ -99,7 +101,7 @@ fun ExerciseDetailSheet(
                 ) {
                     ChipTag(text = categoryNameZh(exercise.category))
                     ChipTag(text = targetNameZh(exercise.target))
-                    ChipTag(text = exercise.equipment)
+                    ChipTag(text = equipmentNameZh(exercise.equipment))
                 }
             }
 

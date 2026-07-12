@@ -1,6 +1,7 @@
 package com.hygge.projectpulse.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -17,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeDefaults
@@ -40,6 +43,18 @@ fun GlassCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val hazeState = remember { HazeState() }
+    val surface = MaterialTheme.colorScheme.surface
+    val glassStyle = HazeDefaults.style(
+        tint = surface.copy(alpha = 0.55f),
+        blurRadius = blurRadius,
+        noiseFactor = 0.1f
+    )
+    val borderColor = if (surface.luminance() < 0.5f) {
+        Color.White.copy(alpha = 0.6f)
+    } else {
+        Color.Black.copy(alpha = 0.12f)
+    }
+
     Box(modifier = modifier.clip(shape)) {
         Box(
             modifier = Modifier
@@ -47,25 +62,18 @@ fun GlassCard(
                 .background(GlassGradient)
                 .haze(
                     state = hazeState,
-                    backgroundColor = Color.White,
-                    tint = Color.White.copy(alpha = 0.1f),
-                    blurRadius = blurRadius,
-                    noiseFactor = 0.05f
+                    style = HazeDefaults.style(
+                        tint = surface.copy(alpha = 0.2f),
+                        blurRadius = blurRadius,
+                        noiseFactor = 0.1f
+                    )
                 )
         )
         Card(
             modifier = Modifier
                 .fillMaxSize()
-                .hazeChild(
-                    state = hazeState,
-                    shape = shape,
-                    style = HazeDefaults.style(
-                        backgroundColor = Color.White.copy(alpha = 0.18f),
-                        tint = Color.White.copy(alpha = 0.25f),
-                        blurRadius = blurRadius,
-                        noiseFactor = 0.05f
-                    )
-                ),
+                .hazeChild(state = hazeState, shape = shape, style = glassStyle)
+                .border(1.5.dp, borderColor, shape),
             shape = shape,
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
@@ -86,6 +94,18 @@ fun GlassSurface(
     content: @Composable BoxScope.() -> Unit
 ) {
     val hazeState = remember { HazeState() }
+    val surface = MaterialTheme.colorScheme.surface
+    val glassStyle = HazeDefaults.style(
+        tint = surface.copy(alpha = 0.55f),
+        blurRadius = blurRadius,
+        noiseFactor = 0.1f
+    )
+    val borderColor = if (surface.luminance() < 0.5f) {
+        Color.White.copy(alpha = 0.6f)
+    } else {
+        Color.Black.copy(alpha = 0.12f)
+    }
+
     Box(modifier = modifier.clip(shape)) {
         Box(
             modifier = Modifier
@@ -93,25 +113,18 @@ fun GlassSurface(
                 .background(GlassGradient)
                 .haze(
                     state = hazeState,
-                    backgroundColor = Color.White,
-                    tint = Color.White.copy(alpha = 0.1f),
-                    blurRadius = blurRadius,
-                    noiseFactor = 0.05f
+                    style = HazeDefaults.style(
+                        tint = surface.copy(alpha = 0.2f),
+                        blurRadius = blurRadius,
+                        noiseFactor = 0.1f
+                    )
                 )
         )
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .hazeChild(
-                    state = hazeState,
-                    shape = shape,
-                    style = HazeDefaults.style(
-                        backgroundColor = Color.White.copy(alpha = 0.18f),
-                        tint = Color.White.copy(alpha = 0.25f),
-                        blurRadius = blurRadius,
-                        noiseFactor = 0.05f
-                    )
-                ),
+                .hazeChild(state = hazeState, shape = shape, style = glassStyle)
+                .border(1.5.dp, borderColor, shape),
             content = content
         )
     }
