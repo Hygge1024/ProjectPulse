@@ -276,7 +276,9 @@ private fun TypeDropdown(
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .onGloballyPositioned { anchorBounds = it.boundsInWindow() }
     ) {
         OutlinedTextField(
             value = selected,
@@ -287,8 +289,7 @@ private fun TypeDropdown(
             label = { Text(stringResource(R.string.workout_type)) },
             modifier = Modifier
                 .fillMaxWidth()
-                .menuAnchor()
-                .onGloballyPositioned { anchorBounds = it.boundsInWindow() },
+                .menuAnchor(),
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
@@ -302,7 +303,7 @@ private fun TypeDropdown(
 
         if (expanded && anchorBounds != null) {
             val anchor = anchorBounds!!
-            val offset = IntOffset(anchor.left.toInt(), anchor.bottom.toInt())
+            val offset = IntOffset(0, anchor.height.toInt())
             val menuWidth = with(density) { anchor.width.toDp() }
             val availableHeight = view.height - anchor.bottom.toInt()
             val maxMenuHeight = with(density) { availableHeight.toDp() }
