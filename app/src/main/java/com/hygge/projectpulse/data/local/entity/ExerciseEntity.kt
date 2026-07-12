@@ -1,5 +1,6 @@
 package com.hygge.projectpulse.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -8,8 +9,6 @@ import androidx.room.PrimaryKey
     tableName = "exercises",
     indices = [
         Index(value = ["category"]),
-        Index(value = ["bodyPart"]),
-        Index(value = ["target"]),
         Index(value = ["externalId"], unique = true)
     ]
 )
@@ -21,6 +20,7 @@ data class ExerciseEntity(
     val nameEn: String,
     val nameZh: String? = null,
     val category: String,
+    @ColumnInfo(defaultValue = "''")
     val bodyPart: String,
     val target: String,
     val muscleGroup: String,
@@ -29,7 +29,9 @@ data class ExerciseEntity(
     val instructionsZh: String,
     val level: String,
     val mediaId: String = "",
+    @ColumnInfo(defaultValue = "''")
     val imagePath: String = "",
+    @ColumnInfo(defaultValue = "''")
     val gifPath: String = "",
     val isFavorite: Boolean = false,
     val userNote: String = "",

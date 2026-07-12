@@ -36,6 +36,7 @@ object AppModule {
             db.execSQL("ALTER TABLE exercises ADD COLUMN bodyPart TEXT NOT NULL DEFAULT ''")
             db.execSQL("ALTER TABLE exercises ADD COLUMN imagePath TEXT NOT NULL DEFAULT ''")
             db.execSQL("ALTER TABLE exercises ADD COLUMN gifPath TEXT NOT NULL DEFAULT ''")
+            db.execSQL("UPDATE exercises SET bodyPart = category WHERE bodyPart = ''")
         }
     }
 
