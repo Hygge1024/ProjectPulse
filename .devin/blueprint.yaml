@@ -1,0 +1,31 @@
+# https://docs.devin.ai/onboard-devin/environment-yaml
+initialize: |
+  mkdir -p /home/ubuntu/android-sdk
+  cd /home/ubuntu/android-sdk
+  if [ ! -d "cmdline-tools/latest/bin" ]; then
+    curl -L -o commandlinetools.zip "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip"
+    unzip -q commandlinetools.zip
+    mkdir -p cmdline-tools/latest
+    mv cmdline-tools/* cmdline-tools/latest/ 2>/dev/null || true
+  fi
+  export ANDROID_HOME=/home/ubuntu/android-sdk
+  export ANDROID_SDK_ROOT=/home/ubuntu/android-sdk
+  export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/build-tools/35.0.0
+  mkdir -p /opt/.devin
+  echo "ANDROID_HOME=/home/ubuntu/android-sdk" >> "$ENVRC"
+  echo "ANDROID_SDK_ROOT=/home/ubuntu/android-sdk" >> "$ENVRC"
+  echo "PATH=\$PATH:\$ANDROID_HOME/cmdline-tools/latest/bin:\$ANDROID_HOME/platform-tools:\$ANDROID_HOME/emulator:\$ANDROID_HOME/build-tools/35.0.0" >> "$ENVRC"
+  yes | sdkmanager --licenses
+  sdkmanager --install "platform-tools" "build-tools;35.0.0" "platforms;android-35" "emulator" "sources;android-35"
+maintenance: |
+  :
+knowledge:
+  - name: build
+    contents: |
+      ./gradlew assembleDebug
+  - name: lint
+    contents: |
+      ./gradlew lint
+  - name: test
+    contents: |
+      ./gradlew test
