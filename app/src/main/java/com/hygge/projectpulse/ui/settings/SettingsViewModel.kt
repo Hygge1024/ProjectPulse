@@ -16,6 +16,7 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -34,20 +35,21 @@ class SettingsViewModel @Inject constructor(
 
     val exportMessage = MutableStateFlow<String?>(null)
 
-    fun exportAllWorkouts(): Intent? {
-        return try {
-            val start = 0L
-            val end = System.currentTimeMillis()
-            viewModelScope.launch {
-                val list = workoutRepository.getWorkoutsBetween(start, end)
-                    .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList()).value
+    fun clearExportMessage() {
+        exportMessage.value = null
+    }
+
+    fun exportAllWorkouts() {
+        viewModelScope.launch {
+            try {
+                val start = 0L
+                val end = System.currentTimeMillis()
+                val list = workoutRepository.getWorkoutsBetween(start, end).first()
                 val file = WorkoutExporter.export(list, start, end, context.cacheDir)
                 shareFile(file)
+            } catch (e: Exception) {
+                exportMessage.value = "Export failed: ${e.message}"
             }
-            null
-        } catch (e: Exception) {
-            exportMessage.value = "Export failed: ${e.message}"
-            null
         }
     }
 
@@ -59,7 +61,7 @@ class SettingsViewModel @Inject constructor(
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         val chooser = Intent.createChooser(intent, "Share workouts")
-        chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        chooser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(chooser)
     }
 }

@@ -1,8 +1,9 @@
 package com.hygge.projectpulse.ui.stats
 
-import android.app.DatePickerDialog
-import android.widget.DatePicker
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,15 +16,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,8 +31,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -40,9 +40,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.hygge.projectpulse.R
 import com.hygge.projectpulse.ui.components.GlassCard
-import java.io.File
+import com.hygge.projectpulse.ui.components.PulseFitDatePickerField
 import java.util.Calendar
 import java.util.concurrent.TimeUnit
+
+private val bottomBarHeight = 80.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,9 +54,6 @@ fun StatsScreen(viewModel: StatsViewModel = hiltViewModel()) {
     val range by viewModel.range.collectAsState()
     val exportMessage by viewModel.exportMessage.collectAsState()
 
-    val context = LocalContext.current
-    val exportDir = context.getExternalFilesDir(null) ?: context.filesDir
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -63,11 +62,19 @@ fun StatsScreen(viewModel: StatsViewModel = hiltViewModel()) {
             )
         }
     ) { padding ->
+        LaunchedEffect(exportMessage) {
+            exportMessage?.let { viewModel.clearExportMessage() }
+        }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = 16.dp,
+                top = 8.dp,
+                bottom = bottomBarHeight
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
@@ -87,7 +94,7 @@ fun StatsScreen(viewModel: StatsViewModel = hiltViewModel()) {
                     start = range.first,
                     end = range.second,
                     onExport = { start, end ->
-                        viewModel.exportRange(start, end, exportDir)
+                        viewModel.exportRange(start, end)
                     }
                 )
             }
@@ -101,7 +108,6 @@ fun StatsScreen(viewModel: StatsViewModel = hiltViewModel()) {
                         fontSize = 14.sp
                     )
                 }
-                viewModel.clearExportMessage()
             }
         }
     }
@@ -109,25 +115,33 @@ fun StatsScreen(viewModel: StatsViewModel = hiltViewModel()) {
 
 @Composable
 private fun PeriodSelector(period: StatsPeriod, onPeriodChange: (StatsPeriod) -> Unit) {
-    Row(
+    GlassCard(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
+        blurRadius = 20.dp
     ) {
-        StatsPeriod.entries.forEach { p ->
-            val selected = p == period
-            Button(
-                onClick = { onPeriodChange(p) },
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-                )
-            ) {
-                Text(
-                    text = if (p == StatsPeriod.WEEK) stringResource(R.string.stats_weekly) else stringResource(R.string.stats_monthly)
-                )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+        ) {
+            StatsPeriod.entries.forEach { p ->
+                val selected = p == period
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(
+                            if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                            else Color.Transparent
+                        )
+                        .clickable { onPeriodChange(p) }
+                        .padding(horizontal = 20.dp, vertical = 10.dp)
+                ) {
+                    Text(
+                        text = if (p == StatsPeriod.WEEK) stringResource(R.string.stats_weekly) else stringResource(R.string.stats_monthly),
+                        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal
+                    )
+                }
             }
-            if (p != StatsPeriod.entries.last()) Spacer(modifier = Modifier.width(8.dp))
         }
     }
 }
@@ -137,13 +151,13 @@ private fun StatsCards(stats: StatsData) {
     Row(modifier = Modifier.fillMaxWidth()) {
         StatCard(
             value = stats.totalCount.toString(),
-            label = "Times",
+            label = stringResource(R.string.times),
             modifier = Modifier.weight(1f)
         )
         Spacer(modifier = Modifier.width(12.dp))
         StatCard(
             value = formatMinutes(stats.totalDuration),
-            label = "Minutes",
+            label = stringResource(R.string.duration),
             modifier = Modifier.weight(1f)
         )
     }
@@ -179,13 +193,16 @@ private fun TypeDistributionCard(byType: Map<String, Int>) {
     ) {
         Column {
             Text(
-                text = "Type Distribution",
+                text = stringResource(R.string.type_distribution),
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onBackground
             )
             Spacer(modifier = Modifier.height(12.dp))
             if (byType.isEmpty()) {
-                Text("No data", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    text = stringResource(R.string.no_data),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             } else {
                 byType.entries.forEach { (type, count) ->
                     Row(
@@ -207,8 +224,8 @@ private fun TypeDistributionCard(byType: Map<String, Int>) {
 
 @Composable
 private fun ExportCard(start: Long, end: Long, onExport: (Long, Long) -> Unit) {
-    var selectedStart by remember { mutableStateOf(start) }
-    var selectedEnd by remember { mutableStateOf(end) }
+    var selectedStart by remember(start) { mutableStateOf(start) }
+    var selectedEnd by remember(end) { mutableStateOf(end) }
 
     GlassCard(
         modifier = Modifier.fillMaxWidth()
@@ -221,16 +238,18 @@ private fun ExportCard(start: Long, end: Long, onExport: (Long, Long) -> Unit) {
             )
             Spacer(modifier = Modifier.height(12.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
-                DatePickerButton(
+                PulseFitDatePickerField(
                     label = stringResource(R.string.export_start_date),
                     timestamp = selectedStart,
-                    onDateSelected = { selectedStart = it }
+                    onDateSelected = { selectedStart = stripTime(it) },
+                    modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
-                DatePickerButton(
+                PulseFitDatePickerField(
                     label = stringResource(R.string.export_end_date),
                     timestamp = selectedEnd,
-                    onDateSelected = { selectedEnd = it }
+                    onDateSelected = { selectedEnd = stripTime(it) },
+                    modifier = Modifier.weight(1f)
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -245,35 +264,19 @@ private fun ExportCard(start: Long, end: Long, onExport: (Long, Long) -> Unit) {
     }
 }
 
-@Composable
-private fun DatePickerButton(label: String, timestamp: Long, onDateSelected: (Long) -> Unit) {
-    val context = LocalContext.current
-    val calendar = remember(timestamp) { Calendar.getInstance().apply { timeInMillis = timestamp } }
-    val dateText = remember(timestamp) {
-        "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH) + 1}-${calendar.get(Calendar.DAY_OF_MONTH)}"
-    }
-
-    TextButton(
-        onClick = {
-            DatePickerDialog(
-                context,
-                { _: DatePicker, year: Int, month: Int, day: Int ->
-                    val cal = Calendar.getInstance().apply {
-                        set(year, month, day, 0, 0, 0)
-                        set(Calendar.MILLISECOND, 0)
-                    }
-                    onDateSelected(cal.timeInMillis)
-                },
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
-        }
-    ) {
-        Text("$label: $dateText")
-    }
-}
-
 private fun formatMinutes(ms: Long): String {
     return TimeUnit.MILLISECONDS.toMinutes(ms).toString()
+}
+
+private fun stripTime(timestamp: Long): Long {
+    val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
+    return Calendar.getInstance().apply {
+        set(Calendar.YEAR, calendar.get(Calendar.YEAR))
+        set(Calendar.MONTH, calendar.get(Calendar.MONTH))
+        set(Calendar.DAY_OF_MONTH, calendar.get(Calendar.DAY_OF_MONTH))
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
 }

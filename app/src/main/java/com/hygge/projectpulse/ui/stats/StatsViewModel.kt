@@ -1,10 +1,14 @@
 package com.hygge.projectpulse.ui.stats
 
+import android.content.Context
+import android.content.Intent
+import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hygge.projectpulse.data.local.entity.WorkoutEntity
 import com.hygge.projectpulse.data.repository.WorkoutRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.File
 import java.util.Calendar
 import javax.inject.Inject
@@ -22,7 +26,8 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class StatsViewModel @Inject constructor(
-    private val workoutRepository: WorkoutRepository
+    private val workoutRepository: WorkoutRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _period = MutableStateFlow(StatsPeriod.WEEK)
@@ -48,16 +53,29 @@ class StatsViewModel @Inject constructor(
         }
     }
 
-    fun exportRange(start: Long, end: Long, outputDir: File) {
+    fun exportRange(start: Long, end: Long) {
         viewModelScope.launch {
             try {
                 val list = workoutRepository.getWorkoutsBetween(start, end + 86_400_000 - 1).first()
-                val file = WorkoutExporter.export(list, start, end, outputDir)
-                exportMessage.value = "Exported to ${file.absolutePath}"
+                val file = WorkoutExporter.export(list, start, end, context.cacheDir)
+                shareFile(file)
+                exportMessage.value = "分享弹窗已打开"
             } catch (e: Exception) {
                 exportMessage.value = "Export failed: ${e.message}"
             }
         }
+    }
+
+    private fun shareFile(file: File) {
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        val chooser = Intent.createChooser(intent, "Share workout data")
+        chooser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(chooser)
     }
 
     private fun calculateStats(list: List<WorkoutEntity>): StatsData {

@@ -55,10 +55,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-private val typeOptions = listOf(
-    "Shoulders", "Back", "Chest", "Legs", "Arms",
-    "Cycling", "Running", "Yoga", "Other"
-)
+private val bottomBarHeight = 80.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +65,7 @@ fun CheckInScreen(viewModel: CheckInViewModel = hiltViewModel()) {
     val selectedType by viewModel.selectedType.collectAsState()
     val note by viewModel.note.collectAsState()
     val history by viewModel.workoutHistory.collectAsState()
+    val typeOptions = viewModel.typeOptions
 
     Scaffold(
         topBar = {
@@ -81,7 +79,12 @@ fun CheckInScreen(viewModel: CheckInViewModel = hiltViewModel()) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                end = 16.dp,
+                top = 8.dp,
+                bottom = bottomBarHeight
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
@@ -89,6 +92,7 @@ fun CheckInScreen(viewModel: CheckInViewModel = hiltViewModel()) {
                     activeWorkout = activeWorkout,
                     elapsed = elapsed,
                     selectedType = selectedType,
+                    typeOptions = typeOptions,
                     note = note,
                     onTypeChange = viewModel::setType,
                     onNoteChange = viewModel::setNote,
@@ -135,6 +139,7 @@ private fun TimerCard(
     activeWorkout: WorkoutEntity?,
     elapsed: Long,
     selectedType: String,
+    typeOptions: List<String>,
     note: String,
     onTypeChange: (String) -> Unit,
     onNoteChange: (String) -> Unit,
@@ -156,7 +161,11 @@ private fun TimerCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TypeDropdown(selectedType, onTypeChange)
+            TypeDropdown(
+                selected = selectedType,
+                options = typeOptions,
+                onSelected = onTypeChange
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -193,7 +202,11 @@ private fun TimerCard(
 }
 
 @Composable
-private fun TypeDropdown(selected: String, onSelected: (String) -> Unit) {
+private fun TypeDropdown(
+    selected: String,
+    options: List<String>,
+    onSelected: (String) -> Unit
+) {
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
@@ -204,7 +217,7 @@ private fun TypeDropdown(selected: String, onSelected: (String) -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
                 TextButton(onClick = { expanded = true }) {
-                    Text("Choose")
+                    Text(stringResource(R.string.choose))
                 }
             },
             colors = TextFieldDefaults.colors(
@@ -215,7 +228,7 @@ private fun TypeDropdown(selected: String, onSelected: (String) -> Unit) {
             )
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            typeOptions.forEach { type ->
+            options.forEach { type ->
                 DropdownMenuItem(
                     text = { Text(type) },
                     onClick = {

@@ -1,10 +1,13 @@
 package com.hygge.projectpulse.ui.checkin
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hygge.projectpulse.R
 import com.hygge.projectpulse.data.local.entity.WorkoutEntity
 import com.hygge.projectpulse.data.repository.WorkoutRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,13 +18,17 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class CheckInViewModel @Inject constructor(
-    private val workoutRepository: WorkoutRepository
+    private val workoutRepository: WorkoutRepository,
+    @ApplicationContext context: Context
 ) : ViewModel() {
+
+    val typeOptions: List<String> =
+        context.resources.getStringArray(R.array.workout_types).toList()
 
     private val _activeWorkout = MutableStateFlow<WorkoutEntity?>(null)
     val activeWorkout: StateFlow<WorkoutEntity?> = _activeWorkout
 
-    private val _selectedType = MutableStateFlow("Shoulders")
+    private val _selectedType = MutableStateFlow(typeOptions.firstOrNull() ?: "")
     val selectedType: StateFlow<String> = _selectedType
 
     private val _note = MutableStateFlow("")

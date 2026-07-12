@@ -1,10 +1,12 @@
 package com.hygge.projectpulse.ui.exercises
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -44,36 +47,45 @@ fun ExerciseDetailSheet(
     onDismiss: () -> Unit,
     onNoteChange: (String) -> Unit
 ) {
-    var note by remember { mutableStateOf(exercise.userNote) }
+    var note by remember(exercise.id) { mutableStateOf(exercise.userNote) }
     val locale = Locale.getDefault()
     val isZh = locale.language == Locale.CHINESE.language
     val instructions = if (isZh && exercise.instructionsZh.isNotBlank()) exercise.instructionsZh else exercise.instructionsEn
     val steps = instructions.split("\n").filter { it.isNotBlank() }
+    val title = exercise.nameZh?.takeIf { it.isNotBlank() } ?: exercise.nameEn
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+        modifier = Modifier.fillMaxHeight(0.9f),
         shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp),
         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f)
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                ExerciseImage(
-                    path = exercise.gifPath,
-                    contentDescription = exercise.nameEn,
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(240.dp)
-                )
+                        .height(240.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ExerciseImage(
+                        path = exercise.gifPath,
+                        contentDescription = title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Inside,
+                        alignment = Alignment.Center
+                    )
+                }
             }
 
             item {
                 Text(
-                    text = exercise.nameEn,
+                    text = title,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -86,7 +98,7 @@ fun ExerciseDetailSheet(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     ChipTag(text = categoryNameZh(exercise.category))
-                    ChipTag(text = exercise.target)
+                    ChipTag(text = targetNameZh(exercise.target))
                     ChipTag(text = exercise.equipment)
                 }
             }
@@ -149,7 +161,7 @@ fun ExerciseDetailSheet(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text("Save")
+                    Text(stringResource(R.string.save))
                 }
             }
         }
