@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -100,53 +101,57 @@ fun CheckInScreen(viewModel: CheckInViewModel = hiltViewModel()) {
                 onStop = viewModel::stopWorkout
             )
 
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
-                contentPadding = PaddingValues(bottom = bottomBarHeight),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .weight(1f)
             ) {
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.workout_history),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        if (history.isNotEmpty()) {
-                            TextButton(onClick = { showDeleteAllDialog = true }) {
-                                Text(
-                                    text = stringResource(R.string.delete_all_workouts),
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.workout_history),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    if (history.isNotEmpty()) {
+                        TextButton(onClick = { showDeleteAllDialog = true }) {
+                            Text(
+                                text = stringResource(R.string.delete_all_workouts),
+                                color = MaterialTheme.colorScheme.error
+                            )
                         }
                     }
                 }
 
-                if (history.isEmpty()) {
-                    item {
-                        Box(
-                            modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                stringResource(R.string.no_workouts_yet),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(bottom = bottomBarHeight),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (history.isEmpty()) {
+                        item {
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    stringResource(R.string.no_workouts_yet),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    } else {
+                        items(history, key = { it.id }) { workout ->
+                            WorkoutItem(
+                                workout = workout,
+                                onDelete = { viewModel.deleteWorkout(workout) }
                             )
                         }
-                    }
-                } else {
-                    items(history, key = { it.id }) { workout ->
-                        WorkoutItem(
-                            workout = workout,
-                            onDelete = { viewModel.deleteWorkout(workout) }
-                        )
                     }
                 }
             }
@@ -282,7 +287,8 @@ private fun TypeDropdown(
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            scrollState = rememberScrollState()
         ) {
             options.forEach { type ->
                 DropdownMenuItem(
@@ -302,7 +308,8 @@ private fun WorkoutItem(workout: WorkoutEntity, onDelete: () -> Unit) {
     val dateFormat = remember { SimpleDateFormat("MM-dd HH:mm", Locale.getDefault()) }
     val duration = ((workout.endTime ?: workout.startTime) - workout.startTime)
     GlassCard(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -311,9 +318,9 @@ private fun WorkoutItem(workout: WorkoutEntity, onDelete: () -> Unit) {
                 imageVector = Icons.Filled.FitnessCenter,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(32.dp)
             )
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = workout.type,
