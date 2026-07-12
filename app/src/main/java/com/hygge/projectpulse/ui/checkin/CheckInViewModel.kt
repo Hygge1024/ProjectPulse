@@ -89,4 +89,10 @@ class CheckInViewModel @Inject constructor(
             workoutRepository.deleteWorkout(workout)
         }
     }
+
+    fun deleteAllWorkouts() {
+        viewModelScope.launch {
+            workoutRepository.deleteAll()
+        }
+    }
 }

@@ -51,6 +51,11 @@
     <string name="choose_date">选择日期</string>
     <string name="close">关闭</string>
     <string name="open_github">打开 GitHub</string>
+    <string name="delete">删除</string>
+    <string name="delete_all_workouts">全部删除历史</string>
+    <string name="delete_all_workouts_confirm">该操作不可恢复。删除后所有健身历史记录将被永久清除，确定要继续吗？</string>
     <string name="disclaimer_title">声明</string>
-    <string name="disclaimer_content">本应用基于开源项目 exercises-dataset 的数据构建，将相关动作数据整理成便于查看的 App，仅供个人学习健身动作使用。\n\n若任何内容涉及侵权，请及时联系开发者处理。\n\n本项目目前完全开源，不做任何商业用途。\nGitHub 地址：https://github.com/Hygge1024/ProjectPulse</string>
+    <string name="disclaimer_summary">本项目完全开源，不做任何商业用途。</string>
+    <string name="disclaimer_view_details">查看详情</string>
+    <string name="disclaimer_content">本应用基于开源项目 exercises-dataset 的数据构建，将相关动作数据整理成便于查看的 App，仅供个人学习健身动作使用。\n\n若任何内容涉及侵权，请及时联系开发者处理。\n\n本项目目前完全开源，不做任何商业用途。本应用产生的所有数据均保存在用户设备本地，不会进行任何联网操作。\n\nGitHub 地址：https://github.com/Hygge1024/ProjectPulse</string>
 </resources>

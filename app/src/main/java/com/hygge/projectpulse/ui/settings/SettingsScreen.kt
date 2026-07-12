@@ -2,6 +2,7 @@ package com.hygge.projectpulse.ui.settings
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -146,14 +147,19 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onBackground
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = stringResource(R.string.disclaimer_summary),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Button(
-                            onClick = { showDisclaimer = true },
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp)
-                        ) {
-                            Text(stringResource(R.string.disclaimer_title))
-                        }
+                        Text(
+                            text = stringResource(R.string.disclaimer_view_details),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable { showDisclaimer = true }
+                        )
                     }
                 }
             }
