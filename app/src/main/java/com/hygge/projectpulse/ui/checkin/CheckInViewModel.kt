@@ -71,7 +71,8 @@ class CheckInViewModel @Inject constructor(
     fun stopWorkout() {
         viewModelScope.launch {
             _activeWorkout.value?.let { active ->
-                _activeWorkout.value = workoutRepository.stopWorkout(active)
+                workoutRepository.stopWorkout(active)
+                _activeWorkout.value = null
             }
         }
     }
