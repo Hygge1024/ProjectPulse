@@ -29,4 +29,6 @@ class ExerciseRepository @Inject constructor(
     suspend fun getCategories(): List<String> = exerciseDao.getCategories()
 
     suspend fun count(): Int = exerciseDao.count()
+
+    suspend fun countWithEmptyImagePath(): Int = exerciseDao.countWithEmptyImagePath()
 }

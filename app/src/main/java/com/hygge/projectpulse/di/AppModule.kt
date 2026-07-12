@@ -2,6 +2,8 @@ package com.hygge.projectpulse.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.hygge.projectpulse.data.local.database.PulseFitDatabase
 import com.hygge.projectpulse.data.preferences.UserPreferences
 import com.hygge.projectpulse.data.repository.ExerciseImporter
@@ -24,8 +26,17 @@ object AppModule {
             PulseFitDatabase::class.java,
             "pulsefit.db"
         )
+            .addMigrations(MIGRATION_1_2)
             .fallbackToDestructiveMigration()
             .build()
+    }
+
+    private val MIGRATION_1_2 = object : Migration(1, 2) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE exercises ADD COLUMN bodyPart TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE exercises ADD COLUMN imagePath TEXT NOT NULL DEFAULT ''")
+            db.execSQL("ALTER TABLE exercises ADD COLUMN gifPath TEXT NOT NULL DEFAULT ''")
+        }
     }
 
     @Provides

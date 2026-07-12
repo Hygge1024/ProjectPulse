@@ -24,13 +24,16 @@ class ExerciseImporter @Inject constructor(
                     externalId = item.id,
                     nameEn = item.name,
                     category = item.category,
+                    bodyPart = item.bodyPart,
                     target = item.target,
                     muscleGroup = item.muscleGroup,
                     equipment = item.equipment,
                     instructionsEn = (item.instructionSteps["en"] ?: item.instructions["en"]?.split(". "))?.joinToString("\n") ?: "",
                     instructionsZh = (item.instructionSteps["zh"] ?: item.instructions["zh"]?.split(". "))?.joinToString("\n") ?: "",
                     level = "",
-                    mediaId = item.mediaId
+                    mediaId = item.mediaId,
+                    imagePath = item.image.ifBlank { "images/${item.id}-${item.mediaId}.jpg" },
+                    gifPath = item.gifUrl.ifBlank { "videos/${item.id}-${item.mediaId}.gif" }
                 )
             }
         }

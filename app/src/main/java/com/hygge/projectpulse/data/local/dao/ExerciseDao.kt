@@ -34,6 +34,9 @@ interface ExerciseDao {
     @Query("SELECT COUNT(*) FROM exercises")
     suspend fun count(): Int
 
+    @Query("SELECT COUNT(*) FROM exercises WHERE imagePath = '' OR gifPath = ''")
+    suspend fun countWithEmptyImagePath(): Int
+
     @Query("SELECT DISTINCT category FROM exercises ORDER BY category ASC")
     suspend fun getCategories(): List<String>
 
